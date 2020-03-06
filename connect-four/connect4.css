@@ -1,7 +1,7 @@
 /* game board table */
 
 .body {
-  background-color: red;
+  background-color: gray;
 
 }
 
@@ -13,7 +13,7 @@ tr {
   width: 50px;
   height: 50px;
   border: solid 1px #666;
-  background-color: blue;
+  background-color: white;
   display: table-cell;
 }
 
@@ -24,6 +24,17 @@ tr {
   margin: 5px;
   width: 80%;
   height: 80%;
+  border-radius: 50%;
+}
+
+.p1 {
+background-color: blue;
+z-index: 10;
+}
+
+.p2 {
+background-color: red;
+z-index: 10;
 }
 
 /* TODO: make pieces red/blue,  depending on player 1/2 piece */

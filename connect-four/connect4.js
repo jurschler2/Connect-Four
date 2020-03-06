@@ -21,7 +21,7 @@ function makeBoard() {
   for (let i = 0; i < HEIGHT; i++) {
     board.push([]);
     for (let j = 0; j < WIDTH; j++) {
-      board[i].push([]);
+      board[i].push(null);
     }
   }
   return board;
@@ -36,12 +36,12 @@ function makeHtmlBoard() {
 
   // TODO: add comment for this code
   // This is adding columns for the game in the actual HTML.
-  var top = document.createElement("tr");
+  let top = document.createElement("tr");
   top.setAttribute("id", "column-top");
   top.addEventListener("click", handleClick);
 
-  for (var x = 0; x < WIDTH; x++) {
-    var headCell = document.createElement("td");
+  for (let x = 0; x < WIDTH; x++) {
+    let headCell = document.createElement("td");
     headCell.setAttribute("id", x);
     top.append(headCell);
   }
@@ -49,10 +49,10 @@ function makeHtmlBoard() {
 
   // TODO: add comment for this code
   // This is adding rows and cells for the game in the actual HTML.
-  for (var y = 0; y < HEIGHT; y++) {
-    const row = document.createElement("tr");
-    for (var x = 0; x < WIDTH; x++) {
-      const cell = document.createElement("td");
+  for (let y = 0; y < HEIGHT; y++) {
+    let row = document.createElement("tr");
+    for (let x = 0; x < WIDTH; x++) {
+      let cell = document.createElement("td");
       cell.setAttribute("id", `${y}-${x}`);
       row.append(cell);
     }
@@ -63,42 +63,55 @@ function makeHtmlBoard() {
 /** findSpotForCol: given column x, return top empty y (null if filled) */
 
 function findSpotForCol(x) {
+  console.log("called with x", x)
   // TODO: write the real version of this, rather than always returning 0
-  if (board[0][x] !== undefined) {
-    return null;
-  } else {
-  return 0;
-  }
+  for (let row = HEIGHT - 1; row >= 0; row--) {
+    console.log("What is row?", row)
+    if (board[row][x] === null) {
+      return row;
+    }
+  }  
+  alert("This column is full! Pick another!")
 }
 
 /** placeInTable: update DOM to place piece into HTML table of board */
 
 function placeInTable(y, x) {
   // TODO: make a div and insert into correct table cell
-  let piece = document.getElementById(`${y}-${x}`);
-  piece.setAttribute('class','piece');
+
+  let gamePiece = document.getElementById(`${y}-${x}`);
   let pieceDiv = document.createElement("div");
+  
 
-  piece.append(pieceDiv);
-
-
-
+  if (currPlayer === 1) {
+    pieceDiv.classList.add('piece', "p1");
+  } else {
+    pieceDiv.classList.add('piece', "p2");
+  }
+  
+  gamePiece.appendChild(pieceDiv);
 }
+
 
 /** endGame: announce game end */
 
 function endGame(msg) {
   // TODO: pop up alert message
+  alert(msg);
+
 }
 
 /** handleClick: handle click of column top to play piece */
 
 function handleClick(evt) {
+  console.log("handleClick");
+
   // get x from ID of clicked cell
-  var x = +evt.target.id;
+  let x = +evt.target.id;
 
   // get next spot in column (if none, ignore click)
-  var y = findSpotForCol(x);
+  let y = findSpotForCol(x);
+  console.log("we just called findSpotForCol --- here is y --->", y)
   if (y === null) {
     return;
   }
@@ -106,6 +119,8 @@ function handleClick(evt) {
   // place piece in board and add to HTML table
   // TODO: add line to update in-memory board
   placeInTable(y, x);
+
+  board[y][x] = currPlayer;
 
   // check for win
   if (checkForWin()) {
@@ -115,8 +130,30 @@ function handleClick(evt) {
   // check for tie
   // TODO: check if all cells in board are filled; if so call, call endGame
 
+  if (checkForTie() === true) {
+    return endGame("You tied.");
+  }
+
+
   // switch players
   // TODO: switch currPlayer 1 <-> 2
+  if (currPlayer === 1) {
+    currPlayer = 2;
+  } else {
+    currPlayer = 1;
+  }
+
+}
+
+function checkForTie(){
+  for (let row = 0; row < HEIGHT; row++) {
+    for (let col = 0; col < WIDTH; col++) {
+      if (board[row][col] === null) {
+        return false;
+      }
+    }
+  return true
+  }
 }
 
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -139,12 +176,12 @@ function checkForWin() {
 
   // TODO: read and understand this code. Add comments to help you.
 
-  for (var y = 0; y < HEIGHT; y++) {
-    for (var x = 0; x < WIDTH; x++) {
-      var horiz = [[y, x], [y, x + 1], [y, x + 2], [y, x + 3]];
-      var vert = [[y, x], [y + 1, x], [y + 2, x], [y + 3, x]];
-      var diagDR = [[y, x], [y + 1, x + 1], [y + 2, x + 2], [y + 3, x + 3]];
-      var diagDL = [[y, x], [y + 1, x - 1], [y + 2, x - 2], [y + 3, x - 3]];
+  for (let y = 0; y < HEIGHT; y++) {
+    for (let x = 0; x < WIDTH; x++) {
+      let horiz = [[y, x], [y, x + 1], [y, x + 2], [y, x + 3]];
+      let vert = [[y, x], [y + 1, x], [y + 2, x], [y + 3, x]];
+      let diagDR = [[y, x], [y + 1, x + 1], [y + 2, x + 2], [y + 3, x + 3]];
+      let diagDL = [[y, x], [y + 1, x - 1], [y + 2, x - 2], [y + 3, x - 3]];
 
       if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
         return true;
